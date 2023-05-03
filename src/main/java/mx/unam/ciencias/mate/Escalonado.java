@@ -1,42 +1,71 @@
 package mx.unam.ciencias.mate;
 public class Escalonado {
-    protected static void escalonar(Mtz matriz){
+    public static void escalonar(Mtz matriz){
         Mtz mtz = matriz;
         mtz = ordenar(mtz);
         
         int i = 0;
         int j = 0;
         int seguridad = 0;
-        while(!verifica(mtz)){
-            while(mtz.matriz[i][j]== 0){
+        
+        for(j = 0; j < maxCol(matriz); j++){
+            i = j;
+            
+            while(mtz.matriz[i][j] == 0){
                 mtz.recorrerRenglon(i);
             }
-            while(mtz.matriz[i+1][j] != 0){
-                int a = mtz.matriz[i][j];
-                int b = mtz.matriz[i+1][j];
-                int mcm = mcm(a,b);
-                int x = mcm/a;
-                int y = mcm/b;
-                mtz.multiplicarRenglon(i, x);
-                mtz.multiplicarRenglon(i+1, y);
-                mtz.restarRenglon(i+1, i);
-                mtz.recorrerRenglon(i+1);
-            }
-            mtz.recorrerRenglon(i+1);
+
+            int a = mtz.matriz[i][j];
+            int z = i;
             i++;
-            j++;
+
+            while(i<mtz.filasNum){
+                if(mtz.matriz[i][j]!=0){
+                    int b = mtz.matriz[i][j];
+                    int mcm = mcm(a,b);
+                    int x = mcm/a;
+                    int y = mcm/b;
+                    
+                    mtz.multiplicarRenglon(z, x);
+                    a = mtz.matriz[z][j];
+                    mtz.multiplicarRenglon(i, y);
+                    mtz.restarRenglon(i, z);
+                    i++;
+                } else{
+                    i++;
+                }   
+            }    
+        }
+
+        for(j = maxCol(matriz)-1; j >= 0; j--){
+            i = j;
             
-            if(i==mtz.filasNum-1||j==mtz.columnasNum){
-                i = 0;
-                j = 0;
-                //seguridad++;
+            int a = mtz.matriz[i][j];
+            int z = i;
+            i--;
+            
+            while(i>=0){
+                if(mtz.matriz[i][j]!=0){
+                    int b = mtz.matriz[i][j];
+                    int mcm = mcm(a,b);
+                    int x = mcm/a;
+                    int y = mcm/b;
+                    
+                    mtz.multiplicarRenglon(z, x);
+                    a = mtz.matriz[z][j];
+                    mtz.multiplicarRenglon(i, y);
+                    mtz.restarRenglon(i, z);
+                    i--;
+                } else{
+                    i--;
+                }
+                
             }
-            
-            if(seguridad == 20)
-                break;
+    
         }
         
-            mtz.imprimirMatriz();
+        mtz.imprimirMatriz();
+        verifica(matriz);
 
     }
 
@@ -58,8 +87,9 @@ public class Escalonado {
         
         return aux;
     }
+    
 
-    protected static int mcm(int num1, int num2) {
+    private static int mcm(int num1, int num2) {
         int a = Math.max(num1, num2);
         int b = Math.min(num1, num2);
      
@@ -69,7 +99,7 @@ public class Escalonado {
      
     }
 
-    protected static int mcd(int num1, int num2) {
+    private static int mcd(int num1, int num2) {
  
         int a = Math.max(num1, num2);
         int b = Math.min(num1, num2);
@@ -84,21 +114,30 @@ public class Escalonado {
         return resultado;
          
     }
-    protected static boolean verifica(Mtz matriz){
-        int a = 1;
-        boolean escalonado = true;
-        for(int j = 0; j < matriz.columnasNum; j++){
-            for(int i = a; i < matriz.filasNum;i++){
-                if(matriz.matriz[i][j] != 0){
-                    escalonado = false;
-                    break;
-                }  
+    private static void verifica(Mtz matriz){
+        boolean solocero;
+        for(int i=0; i<matriz.filasNum;i++){
+            solocero = true;
+            for(int j=0; j<matriz.columnasNum;j++){
+                if(matriz.matriz[i][j] != 0 ){
+                    solocero = false;
+                }
+
             }
-        a++;
-        if(!escalonado)
-            break;
+            if(solocero && matriz.matriz[i][matriz.columnasNum-1]  != 0){
+                System.out.println("la matriz no tiene solucion");
+            }
         }
-        return escalonado;
+        System.out.println("la matriz tiene solucion");
     }
     
+    
+
+    private static int maxCol(Mtz matriz){
+       
+        if(matriz.filasNum < matriz.columnasNum)
+            return matriz.filasNum;
+        
+        return matriz.columnasNum;
+    }
 }
